@@ -1,0 +1,9 @@
+# 网关 swagger ui路由动态配置
+icloud:
+  swagger:
+    document:
+      resources:
+        - name: 账号模块
+          url: user
+        - name: 认证模块
+          url: auth

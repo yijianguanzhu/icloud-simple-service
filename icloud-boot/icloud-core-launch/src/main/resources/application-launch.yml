@@ -1,0 +1,79 @@
+server:
+  tomcat:
+    uri-encoding: UTF-8
+
+spring:
+  zipkin:
+    # 分布式链路追踪不输出到zipkin
+    enabled: false
+  sleuth:
+    baggage:
+      remote-fields:
+        - user_info
+  main:
+    allow-bean-definition-overriding: true
+    banner-mode: log
+  cloud:
+    # 开启断路器功能，默认开启
+    circuit:
+      breaker:
+        enabled: true
+#feign配置
+feign:
+  hystrix:
+    enabled: true
+  okhttp:
+    enabled: true
+  httpclient:
+    enabled: false
+#hystrix配置
+hystrix:
+  threadpool:
+    default:
+      coreSize: 300
+      maxQueueSize: 1000
+      queueSizeRejectionThreshold: 800
+  command:
+    # 定义默认的熔断时间
+    default:
+      execution:
+        timeout:
+          # 是否开启超时熔断，如果为false，则熔断机制只在服务不可用时开启
+          enabled: true
+        isolation:
+          thread:
+            timeoutInMilliseconds: 5000
+
+#ribbon配置
+ribbon:
+  #对当前实例的重试次数
+  MaxAutoRetries: 1
+  #切换实例的重试次数
+  MaxAutoRetriesNextServer: 2
+  #请求处理的超时时间
+  ReadTimeout: 2000
+  #请求连接的超时时间
+  ConnectTimeout: 2000
+  #对所有操作请求都进行重试
+  OkToRetryOnAllOperations: true
+
+logging:
+  file:
+    path: ${LOGGING_PATH:logs}
+
+icloud:
+  jwt:
+    secret: '9MvU1S1!8*PXlg*Z81jaec*$ha0wTIKa3asdyPC*RxMILrx69iPZh#s^fU&1d89d'
+    expired: 72h
+  swagger:
+    enabled: true
+#knife4j配置
+knife4j:
+  #启用
+  enable: true
+  #基础认证
+  basic:
+    enable: true
+    username: admin
+    password: admin
+

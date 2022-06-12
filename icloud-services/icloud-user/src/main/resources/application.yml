@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: user
+  profiles:
+    include: launch
+server:
+  port: 18102

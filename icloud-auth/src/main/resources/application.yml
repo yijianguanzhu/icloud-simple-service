@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: auth
+  profiles:
+    include: launch
+server:
+  port: 18101
