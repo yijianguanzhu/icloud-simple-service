@@ -35,3 +35,9 @@ Apache Licence也是对商业应用友好的许可。使用者也可以在需要
 * 允许免费用于学习、毕设、公司项目、私活等。
 * 对未经过授权和不遵循 Apache 2.0 协议二次开源或者商业化作者将追究到底。
 * 若禁止条款被发现有权追讨 **5000** 的授权费。
+
+### swagger界面
+
+![访问swagger](https://github.com/yijianguanzhu/icloud-simple-service/raw/master/doc/images/访问swagger.png)
+![登录](https://github.com/yijianguanzhu/icloud-simple-service/raw/master/doc/images/登录.png)
+![token合法性校验](https://github.com/yijianguanzhu/icloud-simple-service/raw/master/doc/images/token合法性校验.png)
