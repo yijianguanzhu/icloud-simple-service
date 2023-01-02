@@ -2,6 +2,7 @@ package com.yijianguanzhu.gateway.security.config;
 
 import com.nimbusds.jose.JWSAlgorithm;
 import com.yijianguanzhu.common.props.JwtProperties;
+import com.yijianguanzhu.feign.client.user.UserFeignClient;
 import com.yijianguanzhu.gateway.security.converter.JwtExtractTokenAuthenticationConverter;
 import com.yijianguanzhu.gateway.security.converter.JwtTokenGrantedAuthoritiesConverter;
 import com.yijianguanzhu.gateway.security.filter.AuthWebFilter;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
@@ -42,6 +44,13 @@ public class GatewaySecurityConfiguration {
 	@Autowired
 	private JwtProperties jwtProperties;
 
+	/**
+	 * 当前版本gateway引入feign bean需要加@Lazy，否则gateway无法在存在服务的情况下注册到nacos
+	 */
+	@Autowired
+	@Lazy
+	private UserFeignClient userFeignClient;
+
 	@Bean
 	public SecurityWebFilterChain springSecurityFilterChain( ServerHttpSecurity http ) {
 
@@ -56,7 +65,7 @@ public class GatewaySecurityConfiguration {
 				"/doc.html",
 				"/webjars/**",
 				"/swagger-resources/**",
-				"/**/v2/api-docs" };
+				"/*/v2/api-docs" };
 
 		JwtAuthenticationConverter authenticationConverter = new JwtAuthenticationConverter();
 		authenticationConverter.setJwtGrantedAuthoritiesConverter( new JwtTokenGrantedAuthoritiesConverter() );
@@ -72,7 +81,7 @@ public class GatewaySecurityConfiguration {
 				.pathMatchers( "/**" ).access( new UserAuthorityReactiveAuthorizationManager() )
 				.anyExchange().authenticated()
 				.and().csrf().disable()
-				.addFilterAfter( new AuthWebFilter(), SecurityWebFiltersOrder.AUTHORIZATION )
+				.addFilterAfter( new AuthWebFilter( userFeignClient ), SecurityWebFiltersOrder.AUTHORIZATION )
 				.oauth2ResourceServer()
 				.bearerTokenConverter( new JwtExtractTokenAuthenticationConverter() )
 				// 身份验证失败处理器

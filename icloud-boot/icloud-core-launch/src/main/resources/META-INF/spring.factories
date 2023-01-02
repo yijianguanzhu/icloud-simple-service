@@ -1,3 +1,0 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  com.yijianguanzhu.core.launch.config.ICloudAutoConfiguration,\
-  com.yijianguanzhu.core.launch.config.SwaggerAutoConfiguration

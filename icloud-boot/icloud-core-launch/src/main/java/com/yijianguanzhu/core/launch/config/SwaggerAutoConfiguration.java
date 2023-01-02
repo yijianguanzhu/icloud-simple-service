@@ -1,17 +1,14 @@
 package com.yijianguanzhu.core.launch.config;
 
 import com.github.xiaoymin.knife4j.spring.annotations.EnableKnife4j;
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
-import com.google.common.collect.Lists;
 import com.yijianguanzhu.common.constant.TokenConstant;
 import com.yijianguanzhu.common.props.SwaggerProperties;
 import io.swagger.annotations.Api;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import springfox.bean.validators.configuration.BeanValidatorPluginsConfiguration;
 import springfox.documentation.builders.ApiInfoBuilder;
@@ -22,7 +19,7 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.ApiSelectorBuilder;
 import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
+import springfox.documentation.swagger2.annotations.EnableSwagger2WebMvc;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,32 +28,27 @@ import java.util.List;
 /**
  * @author yijianguanzhu 2022年06月09日
  */
-@Configuration(proxyBeanMethods = false)
+@AutoConfiguration
 @EnableKnife4j
-@EnableSwagger2
+@EnableSwagger2WebMvc
 @EnableConfigurationProperties(SwaggerProperties.class)
 @ConditionalOnClass(BeanValidatorPluginsConfiguration.class)
 @Import(BeanValidatorPluginsConfiguration.class)
 @ConditionalOnProperty(value = "icloud.swagger.enabled", havingValue = "true", matchIfMissing = false)
 public class SwaggerAutoConfiguration {
 
-	private static final String DEFAULT_MAPPING_PATH = "/";
 	private static final String DEFAULT_BASE_PATH = "/**";
 	private static final List<String> DEFAULT_EXCLUDE_PATH = Arrays.asList( "/error", "/actuator/**" );
 
 	@Bean
 	public Docket api( SwaggerProperties swaggerProperties ) {
 
-		List<Predicate<String>> basePath = Lists.newArrayList( PathSelectors.ant( DEFAULT_BASE_PATH ) );
-		List<Predicate<String>> excludePath = Lists.newArrayList();
-		DEFAULT_EXCLUDE_PATH.forEach( path -> excludePath.add( PathSelectors.ant( path ) ) );
 		ApiSelectorBuilder apis = new Docket( DocumentationType.SWAGGER_2 )
 				.apiInfo( apiInfo( swaggerProperties ) ).select()
 				.apis( RequestHandlerSelectors.withClassAnnotation( Api.class ) )
-				.paths( Predicates.and( Predicates.not( Predicates.or( excludePath ) ), Predicates.or( basePath ) ) );
-
+				.paths( PathSelectors.ant( DEFAULT_BASE_PATH ) );
+		DEFAULT_EXCLUDE_PATH.forEach( p -> apis.paths( PathSelectors.ant( p ).negate() ) );
 		return apis.build()
-				.pathMapping( DEFAULT_MAPPING_PATH )
 				.securityContexts( securityContexts() )
 				.securitySchemes( securitySchemes() );
 	}

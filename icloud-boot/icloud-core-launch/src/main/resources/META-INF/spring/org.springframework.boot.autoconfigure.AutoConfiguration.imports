@@ -1,0 +1,4 @@
+com.yijianguanzhu.core.launch.config.SwaggerAutoConfiguration
+com.yijianguanzhu.core.launch.config.ICloudAutoConfiguration
+com.yijianguanzhu.core.launch.config.ICloudAutoSentinelConfiguration
+com.yijianguanzhu.core.launch.config.SleuthAutoConfiguration

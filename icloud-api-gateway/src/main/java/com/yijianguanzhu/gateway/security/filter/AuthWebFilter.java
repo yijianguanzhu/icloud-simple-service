@@ -1,11 +1,16 @@
 package com.yijianguanzhu.gateway.security.filter;
 
 import brave.baggage.BaggageField;
+import com.yijianguanzhu.common.base.BaseResponseEntity;
 import com.yijianguanzhu.common.constant.JwtConstant;
 import com.yijianguanzhu.common.constant.TokenConstant;
 import com.yijianguanzhu.common.result.UserResult;
 import com.yijianguanzhu.common.utils.ProtostuffUtil;
+import com.yijianguanzhu.feign.client.user.UserFeignClient;
+import com.yijianguanzhu.user.model.User;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.server.ServerWebExchange;
@@ -22,7 +27,10 @@ import java.util.Map;
  * @author yijianguanzhu 2022年06月09日
  */
 @Slf4j
+@AllArgsConstructor
 public class AuthWebFilter implements WebFilter {
+
+	private UserFeignClient userFeignClient;
 
 	@Override
 	public Mono<Void> filter( ServerWebExchange exchange, WebFilterChain chain ) {
@@ -33,6 +41,7 @@ public class AuthWebFilter implements WebFilter {
 				.map( auth -> {
 					log.info( "用户认证结束." );
 					UserResult userInfo = getUserInfo( ( Jwt ) auth.getPrincipal() );
+					ResponseEntity<BaseResponseEntity<User>> entity = userFeignClient.getAccount( userInfo.getUsername() );
 					BaggageField baggageField = BaggageField.create( TokenConstant.USER_INFO );
 					baggageField.updateValue( Base64.getEncoder().encodeToString( ProtostuffUtil.serialize( userInfo ) ) );
 					return exchange;

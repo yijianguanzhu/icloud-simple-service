@@ -3,59 +3,58 @@ server:
     uri-encoding: UTF-8
 
 spring:
-  zipkin:
-    # 分布式链路追踪不输出到zipkin
-    enabled: false
   sleuth:
+    reactor:
+      instrumentation-type: decorate_on_each
     baggage:
       remote-fields:
         - user_info
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
   main:
     allow-bean-definition-overriding: true
     banner-mode: log
   cloud:
+    sentinel:
+      eager: true
     # 开启断路器功能，默认开启
+    circuitbreaker:
+      sentinel:
+        enabled: true
     circuit:
       breaker:
         enabled: true
+    loadbalancer:
+      # 使用nacos作为负载均衡的实例选择策略
+      nacos:
+        enabled: true
+      retry:
+        enabled: true
+        # 对当前实例重试的次数，默认值: 0
+        max-retries-on-same-service-instance: 0
+        # 切换实例进行重试的次数，默认值: 1
+        max-retries-on-next-service-instance: 2
+        # 对所有的操作请求都进行重试，默认false，默认只对GET请求进行重试
+        retry-on-all-operations: false
 #feign配置
 feign:
-  hystrix:
-    enabled: true
   okhttp:
     enabled: true
+  # 开启sentinel feign断路器
+  sentinel:
+    enabled: true
+  circuitbreaker:
+    enabled: false
   httpclient:
     enabled: false
-#hystrix配置
-hystrix:
-  threadpool:
-    default:
-      coreSize: 300
-      maxQueueSize: 1000
-      queueSizeRejectionThreshold: 800
-  command:
-    # 定义默认的熔断时间
-    default:
-      execution:
-        timeout:
-          # 是否开启超时熔断，如果为false，则熔断机制只在服务不可用时开启
-          enabled: true
-        isolation:
-          thread:
-            timeoutInMilliseconds: 5000
-
-#ribbon配置
-ribbon:
-  #对当前实例的重试次数
-  MaxAutoRetries: 1
-  #切换实例的重试次数
-  MaxAutoRetriesNextServer: 2
-  #请求处理的超时时间
-  ReadTimeout: 2000
-  #请求连接的超时时间
-  ConnectTimeout: 2000
-  #对所有操作请求都进行重试
-  OkToRetryOnAllOperations: true
+  client:
+    config:
+      default:
+        #feign客户端建立连接超时时间
+        connect-timeout: 3000
+        #feign客户端建立连接后读取资源超时时间
+        read-timeout: 5000
 
 logging:
   file:

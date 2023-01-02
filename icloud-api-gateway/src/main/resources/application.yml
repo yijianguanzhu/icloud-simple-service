@@ -5,18 +5,13 @@ spring:
     include: launch
   cloud:
     gateway:
+      httpclient:
+        connect-timeout: 3000
+        response-timeout: 30s
       discovery:
         locator:
           enabled: true
           lower-case-service-id: true
-      default-filters:
-        - name: Hystrix
-          args:
-            name: default
-            fallbackUri: forward:/fallback
-    loadbalancer:
-      retry:
-        enabled: true
 
 server:
   port: 18100
